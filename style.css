@@ -101,6 +101,18 @@
         align-items: flex-start;
         gap: 10px;
     }
+
+    .navbar-recherche {
+        width: 100%;
+    }
+
+    .navbar-recherche input {
+        width: 100%;
+    }
+
+    .recettes {
+        grid-template-columns: 1fr;
+    }
 }
 
 .btn-Annuler {
