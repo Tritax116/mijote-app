@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\kylia\\\\OneDrive\\\\Bureau\\\\mijote-app\\\\index.html\" -Raw\\) -replace '<h1><span class=\"logo\">M</span></h1>\\\\r\\\\n</head>', '</head>' -replace '<h1>MijotÃ©</h1>', '<h1><span class=\"logo\">M</span>ijotÃ©</h1>' | Set-Content \"C:\\\\Users\\\\kylia\\\\OneDrive\\\\Bureau\\\\mijote-app\\\\index.html\" -Encoding utf8)",
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\kylia\\\\OneDrive\\\\Bureau\\\\mijote-app\\\\index.html\" -Raw\\) -replace '    <h1><span class=\"logo\">M</span></h1>\\\\r\\\\n</head>', '</head>' -replace '    <h1><span class=\"logo\">M</span></h1>', '    <h1><span class=\"logo\">M</span>ijoté</h1>' | Set-Content \"C:\\\\Users\\\\kylia\\\\OneDrive\\\\Bureau\\\\mijote-app\\\\index.html\" -Encoding utf8)"
+    ]
+  }
+}

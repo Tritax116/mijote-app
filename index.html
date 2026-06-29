@@ -1,0 +1,118 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#c2674b">
+    <title>Mijoté</title>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-titre">
+            <div class="navbar-top">
+                <span class="logo">M</span>
+                <h1>Mijoté</h1>
+            </div>
+            <p class="sous-titre">CARNET DE RECETTES</p>
+        </div>
+        <div class="navbar-recherche">
+            <span class="loupe">🔍</span>
+            <input type="text" placeholder="Rechercher une recette, un ingrédient...">
+        </div>
+        <button class="btn-ajouter">+ Ajouter</button>
+    </nav>
+    <div class="contenu">
+    <div class="boutons">
+<button id="btn-favoris">♡ Favoris <span class="badge">0</span></button>
+        <button id="btn-Tous">Tous <span class="badge">3</span></button>
+        <button id="btn-italien">Italien <span class="badge">2</span></button>
+        <button id="btn-facile">facile <span class="badge">1</span></button>
+        <button id="btn-français">français <span class="badge"></span></button>
+        <button id="btn-asiatique">asiatique <span class="badge"></span></button>
+
+
+    </div>
+    </div>
+    <div class="contenu">
+    <h2 class="titre-section">Mes recettes</h2>
+    <div class="recettes">
+    </div>
+    </div>
+    <div class="overlay">
+        <div class="formulaire">
+            <h2>Nouvelle recette</h2>
+            <button class="btn-fermer">×</button>
+            <p class="label">PHOTO DU PLAT</p>
+            <div class="zone-photo" id="zone-photo">
+                <span>🖼️</span>
+                <p>Cliquez pour ajouter une photo</p>
+                <p class="sous-label">JPG ou PNG</p>
+                <input type="file" accept="image/*" id="input-photo" style="display:none">
+            </div>
+            <p class="label">TITRE DE LA RECETTE</p>
+            <input type="text" placeholder="Ex : Risotto crémeux aux champignons">
+            <p class="label">CATÉGORIES</p>
+            <div class="categories">
+                <button>Italien</button>
+                <button>Français</button>
+                <button>Asiatique</button>
+                <button>Dessert</button>
+                <button>Petit-déj</button>
+                <button>Rapide</button>
+                <button>Végé</button>
+                <button>Healthy</button>
+                <button>Épicé</button>
+            </div>
+            <div class="temps">
+    <div>
+        <p class="label">PRÉPA (MIN)</p>
+        <input type="number" placeholder="0">
+    </div>
+    <div>
+        <p class="label">CUISSON (MIN)</p>
+        <input type="number" placeholder="0">
+    </div>
+    <div>
+        <p class="label">PORTIONS</p>
+        <input type="number" placeholder="4">
+    </div>
+</div>
+<p class="label">INGRÉDIENTS</p>
+<div class="ligne-ingredient">
+    <input type="text" placeholder="Qté" id="input-qte">
+    <input type="text" placeholder="Unité" id="input-unite">
+    <input type="text" placeholder="Ingrédient" id="input-ingredient">
+    <button id="btn-supprimer-ingredient">×</button>
+</div>
+<button class="btn-ajouter-ingredient">+ Ajouter un ingrédient</button>
+<p class="label">ETAPES</p>
+<div class="ligne-etape">
+    <span class="numero-etape">1</span>
+    <textarea placeholder="Décrivez cette étape..."></textarea>
+    <button class="btn-supprimer-etape">×</button>
+</div>
+<button class="btn-ajouter-etape">+ Ajouter une étape</button>
+<p class="label">NOTES PERSONNELLES</p>
+<div class="note">
+    <textarea placeholder="Astuces, variantes, accompagnements..."></textarea>
+    </div>
+    <p class="label">Note</p>
+    <span class="étoile">★</span>
+    <span class="étoile">★</span>
+    <span class="étoile">★</span>
+    <span class="étoile">★</span>
+    <span class="étoile">★</span>
+        <div class="boutons-formulaire">
+            <button class="btn-Annuler">Annuler</button>
+            <button class="btn-Ajouter-recette">Ajouter la recette</button>
+        </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
