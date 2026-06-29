@@ -2,7 +2,7 @@
     "name": "Mijoté",
     "short_name": "Mijoté",
     "description": "Mon carnet de recettes",
-    "start_url": "/index.html",
+    "start_url": "/mijote-app/index.html",
     "display": "standalone",
     "background_color": "#fbf5ec",
     "theme_color": "#c2674b",
