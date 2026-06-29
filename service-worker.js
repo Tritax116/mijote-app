@@ -1,9 +1,9 @@
 const CACHE = "mijote-v1"
 const FICHIERS = [
-    "/index.html",
-    "/style.css",
-    "/script.js",
-    "/manifest.json"
+    "./index.html",
+    "./style.css",
+    "./script.js",
+    "./manifest.json"
 ]
 
 self.addEventListener("install", function(e) {
