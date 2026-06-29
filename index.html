@@ -1,10 +1,8 @@
 ﻿<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#c2674b">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mijoté</title>
 </head>
 <body>
@@ -37,6 +35,33 @@
     <div class="contenu">
     <h2 class="titre-section">Mes recettes</h2>
     <div class="recettes">
+        <div class="recette" data-categorie="italien">
+            <div class="coeur"><button>♡</button></div>
+            <img src="https://s1.qwant.com/thumbr/474x355/8/6/4dcbc871b87f0214f82764da753a23f4588f37da0e33d8e86aee239e05139e/OIP.hYbhTMTE7ZEIsp1dU75oSAHaFj.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.hYbhTMTE7ZEIsp1dU75oSAHaFj%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0" alt="Pates Bolognaises">
+            <h2>Pates Bolognaises</h2>
+            <div class="recette-info">
+                <p>⏱ 1h30 · <span class="etoiles">★★★★☆</span></p>
+            </div>
+            <div class="tags"><span class="tag-italien">Italien</span></div>
+        </div>
+        <div class="recette" data-difficulte="facile">
+            <div class="coeur"><button>♡</button></div>
+            <img src="https://s1.qwant.com/thumbr/474x315/0/1/6fd6706f769f4982aa894949b1c8587342cc229ad9caaa968cac86a69f63ec/OIP.57RNdeTqS5h3CVnP85T3VwHaE7.jpg?u=https%3A%2F%2Ftse.mm.bing.net%2Fth%2Fid%2FOIP.57RNdeTqS5h3CVnP85T3VwHaE7%3Fpid%3DApi&q=0&b=1&p=0&a=0" alt="Tartiflette">
+            <h2>Tartiflette</h2>
+            <div class="recette-info">
+                <p>⏱ 1h15 · <span class="etoiles">★★★☆☆</span></p>
+            </div>
+            <div class="tags"><span class="tag-facile">Facile</span></div>
+        </div>
+        <div class="recette" data-categorie="italien">
+            <div class="coeur"><button>♡</button></div>
+            <img src="https://s1.qwant.com/thumbr/474x273/2/b/ad6a354865d45ee3fa533f9638088ef1e42d8216edb5c09543f2750e106d0b/OIP.oPqTM0j-aAO7lOEwdI2IMAHaER.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.oPqTM0j-aAO7lOEwdI2IMAHaER%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0" alt="Pates Carbonnara">
+            <h2>Pates Carbonnara</h2>
+            <div class="recette-info">
+                <p>⏱ 12min · <span class="etoiles">★★★★★</span></p>
+            </div>
+            <div class="tags"><span class="tag-italien">Italien</span></div>
+        </div>
     </div>
     </div>
     <div class="overlay">
@@ -44,11 +69,10 @@
             <h2>Nouvelle recette</h2>
             <button class="btn-fermer">×</button>
             <p class="label">PHOTO DU PLAT</p>
-            <div class="zone-photo" id="zone-photo">
+            <div class="zone-photo">
                 <span>🖼️</span>
                 <p>Cliquez pour ajouter une photo</p>
                 <p class="sous-label">JPG ou PNG</p>
-                <input type="file" accept="image/*" id="input-photo" style="display:none">
             </div>
             <p class="label">TITRE DE LA RECETTE</p>
             <input type="text" placeholder="Ex : Risotto crémeux aux champignons">

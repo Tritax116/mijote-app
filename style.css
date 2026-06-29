@@ -95,6 +95,14 @@
     justify-content: flex-end;
 }
 
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
 .btn-Annuler {
     background: none;
     border: 1.5px solid #c2674b;
