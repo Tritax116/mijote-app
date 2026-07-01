@@ -32,6 +32,8 @@ function desactiverFiltres() {
     document.querySelectorAll(".boutons button").forEach(function(f) {
         f.classList.remove("filtre-actif")
     })
+    const messageVide = document.querySelector("#message-vide")
+    if (messageVide) messageVide.remove()
 }
 
 function mettreAJourFiltres() {
@@ -129,6 +131,8 @@ input.addEventListener("keydown", function(e) {
 // --- Filtres Tous et Favoris ---
 btnTous.addEventListener("click", function() {
     desactiverFiltres()
+    const messageVide = document.querySelector("#message-Vide")
+    if (messageVide) messageVide.remove()
     btnTous.classList.add("filtre-actif")
     document.querySelectorAll(".recette").forEach(function(r) { r.style.display = "block" })
 })
@@ -140,6 +144,14 @@ btnFavoris.addEventListener("click", function() {
         const coeur = recette.querySelector(".coeur button")
         recette.style.display = coeur.classList.contains("actif") ? "block" : "none"
     })
+
+    const visibles = document.querySelectorAll(".recette[style*='block']").length
+    if (visibles === 0) {
+        const message = document.createElement("p")
+        message.id = "message-vide"
+        message.textContent = "Aucun favori pour l'instant ♡"
+        document.querySelector(".recettes").appendChild(message)
+    }
 })
 
 // --- Difficulté du formulaire ---
