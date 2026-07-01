@@ -143,9 +143,9 @@ btnFavoris.addEventListener("click", function() {
 })
 
 // --- Difficulté du formulaire ---
-document.querySelectorAll(".difficulté button").forEach(function(btn) {
+document.querySelectorAll(".difficulte button").forEach(function(btn) {
     btn.addEventListener("click", function() {
-        document.querySelectorAll(".difficulté button").forEach(function(b) {
+        document.querySelectorAll(".difficulte button").forEach(function(b) {
             b.classList.remove("difficulte-active")
         })
         btn.classList.add("difficulte-active")
@@ -224,6 +224,11 @@ function ouvrirEdition(carte) {
         if (data.tags && data.tags.includes(btn.textContent)) btn.classList.add("categorie-active")
     })
 
+    document.querySelectorAll(".difficulte button").forEach(function(btn) {
+        btn.classList.remove("difficulte-active")
+        if (data.tags && data.tags.includes(btn.textContent)) btn.classList.add("difficulte-active")
+    })
+
     const etoilesCount = (data.etoiles.match(/★/g) || []).length
     document.querySelectorAll(".étoile").forEach(function(e, i) {
         e.classList.remove("actif", "demi")
@@ -258,6 +263,7 @@ function resetFormulaire() {
     document.querySelectorAll(".temps input").forEach(function(i) { i.value = "" })
     document.querySelector(".note textarea").value = ""
     document.querySelectorAll(".categories button").forEach(function(b) { b.classList.remove("categorie-active") })
+    document.querySelectorAll(".difficulte button").forEach(function(b) { b.classList.remove("difficulte-active") })
     document.querySelectorAll(".étoile").forEach(function(e) { e.classList.remove("actif", "demi") })
     document.querySelectorAll(".ligne-ingredient").forEach(function(l, i) { if (i > 0) l.remove() })
     document.querySelector("#input-qte").value = ""
@@ -331,6 +337,11 @@ document.querySelector(".btn-Ajouter-recette").addEventListener("click", functio
     document.querySelectorAll(".categories button.categorie-active").forEach(function(btn) {
         tagsHTML += `<span class="tag-italien">${btn.textContent}</span>`
     })
+
+    const difficulteBouton = document.querySelector(".difficulte button.difficulte-active")
+    if (difficulteBouton) {
+        tagsHTML += `<span class="tag-facile">${difficulteBouton.textContent}</span>`
+    }
 
     const etoilesActives = document.querySelectorAll(".étoile.actif").length
     const etoilesDemi = document.querySelectorAll(".étoile.demi").length

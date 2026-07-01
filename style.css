@@ -190,19 +190,19 @@
     letter-spacing: 2px;
 }
 
-.difficulté button {
+.difficulte button {
     border-radius: 100px;
     border: 2px solid #e5d9c9;
     background-color: #fffdf9;
     padding: 10px;;
 }
-.difficulté {
+.difficulte {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.difficulté button.difficulte-active {
+.difficulte button.difficulte-active {
     background-color: #c2674b;
     color: white;
     border-color: #c2674b;
