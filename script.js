@@ -179,11 +179,23 @@ document.querySelectorAll(".categories button").forEach(function(btn) {
     })
 })
 
+// --- Validation titre ---
+const inputTitre = document.querySelector("#input-titre")
+const btnAjouter = document.querySelector(".btn-Ajouter-recette")
+
+function mettreAJourBoutonAjouter() {
+    const vide = inputTitre.value.trim() === ""
+    btnAjouter.classList.toggle("btn-desactive", vide)
+}
+
+inputTitre.addEventListener("input", mettreAJourBoutonAjouter)
+
 // --- Ouvrir/fermer formulaire ---
 document.querySelector(".btn-ajouter").addEventListener("click", function() {
     carteEnEdition = null
     document.querySelector(".btn-supprimer-recette").style.display = "none"
     overlay.style.display = "flex"
+    mettreAJourBoutonAjouter()
 })
 
 document.querySelector(".btn-fermer").addEventListener("click", function() {
@@ -214,7 +226,7 @@ function ouvrirEdition(carte) {
     const data = recettesSauvegardees.find(function(r) { return String(r.id) === String(id) })
     if (!data) return
 
-    document.querySelector(".formulaire input[type='text']").value = data.titre
+    inputTitre.value = data.titre
 
     const tempsInputs = document.querySelectorAll(".temps input")
     if (data.temps) tempsInputs[0].value = parseInt(data.temps) || ""
@@ -242,6 +254,7 @@ function ouvrirEdition(carte) {
 
     document.querySelector(".btn-supprimer-recette").style.display = "block"
     overlay.style.display = "flex"
+    mettreAJourBoutonAjouter()
 }
 
 
@@ -259,7 +272,7 @@ document.querySelector(".btn-supprimer-recette").addEventListener("click", funct
 
 // --- Reset formulaire ---
 function resetFormulaire() {
-    document.querySelector(".formulaire input[type='text']").value = ""
+    inputTitre.value = ""
     document.querySelectorAll(".temps input").forEach(function(i) { i.value = "" })
     document.querySelector(".note textarea").value = ""
     document.querySelectorAll(".categories button").forEach(function(b) { b.classList.remove("categorie-active") })
@@ -325,7 +338,7 @@ document.querySelector(".btn-ajouter-etape").addEventListener("click", function(
 
 // --- Ajouter / modifier une recette ---
 document.querySelector(".btn-Ajouter-recette").addEventListener("click", function() {
-    const titre = document.querySelector(".formulaire input[type='text']").value
+    const titre = inputTitre.value
     if (!titre) return
 
     const tempsInputs = document.querySelectorAll(".temps input")

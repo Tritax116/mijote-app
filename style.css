@@ -136,13 +136,20 @@
 }
 
 .btn-Ajouter-recette {
-    background: none;
-    border: 1.5px solid #e2d2c2;
+    background-color: #c2674b;
+    border: 1.5px solid #c2674b;
     border-radius: 20px;
     padding: 8px 16px;
-    color: grey;
+    color: white;
     cursor: pointer;
-    background-color: #e2d2c2;;
+    font-weight: bold;
+}
+
+.btn-Ajouter-recette.btn-desactive {
+    background-color: #e2d2c2;
+    border-color: #e2d2c2;
+    color: #aaa;
+    cursor: not-allowed;
 }
 
 .étoile.demi {
@@ -498,4 +505,12 @@ img {
     padding: 3px 10px;
     border-radius: 20px;
     font-size: 0.8em;
+}
+
+input::placeholder {
+    color: #a89383;
+}
+
+textarea::placeholder {
+    color: #a89383;
 }

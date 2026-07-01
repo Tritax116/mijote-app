@@ -1,4 +1,4 @@
-const CACHE = "mijote-v3"
+const CACHE = "mijote-v4"
 const FICHIERS = [
     "./index.html",
     "./style.css",
