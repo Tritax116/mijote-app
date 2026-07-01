@@ -2,20 +2,74 @@
     navigator.serviceWorker.register("./service-worker.js")
 }
 
+// --- Éléments du DOM ---
 const input = document.querySelector("input")
+const boutons = document.querySelector(".boutons")
+const btnFavoris = document.querySelector("#btn-favoris")
+const btnTous = document.querySelector("#btn-Tous")
+const overlay = document.querySelector(".overlay")
+const zonePhoto = document.querySelector("#zone-photo")
+const inputPhoto = document.querySelector("#input-photo")
 
+// --- Données ---
 const recettesParDefaut = [
-    { id: 1, titre: "Pates Bolognaises", temps: "1h30", etoiles: "★★★★☆", tags: '<span class="tag-italien">Italien</span>', photo: "https://s1.qwant.com/thumbr/474x355/8/6/4dcbc871b87f0214f82764da753a23f4588f37da0e33d8e86aee239e05139e/OIP.hYbhTMTE7ZEIsp1dU75oSAHaFj.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.hYbhTMTE7ZEIsp1dU75oSAHaFj%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0", favori: false },
+    { id: 1, titre: "Pâtes Bolognaises", temps: "1h30", etoiles: "★★★★☆", tags: '<span class="tag-italien">Italien</span>', photo: "https://s1.qwant.com/thumbr/474x355/8/6/4dcbc871b87f0214f82764da753a23f4588f37da0e33d8e86aee239e05139e/OIP.hYbhTMTE7ZEIsp1dU75oSAHaFj.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.hYbhTMTE7ZEIsp1dU75oSAHaFj%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0", favori: false },
     { id: 2, titre: "Tartiflette", temps: "1h15", etoiles: "★★★☆☆", tags: '<span class="tag-facile">Facile</span>', photo: "https://s1.qwant.com/thumbr/474x315/0/1/6fd6706f769f4982aa894949b1c8587342cc229ad9caaa968cac86a69f63ec/OIP.57RNdeTqS5h3CVnP85T3VwHaE7.jpg?u=https%3A%2F%2Ftse.mm.bing.net%2Fth%2Fid%2FOIP.57RNdeTqS5h3CVnP85T3VwHaE7%3Fpid%3DApi&q=0&b=1&p=0&a=0", favori: false },
-    { id: 3, titre: "Pates Carbonnara", temps: "12min", etoiles: "★★★★★", tags: '<span class="tag-italien">Italien</span>', photo: "https://s1.qwant.com/thumbr/474x273/2/b/ad6a354865d45ee3fa533f9638088ef1e42d8216edb5c09543f2750e106d0b/OIP.oPqTM0j-aAO7lOEwdI2IMAHaER.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.oPqTM0j-aAO7lOEwdI2IMAHaER%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0", favori: false },
+    { id: 3, titre: "Pâtes Carbonara", temps: "12min", etoiles: "★★★★★", tags: '<span class="tag-italien">Italien</span>', photo: "https://s1.qwant.com/thumbr/474x273/2/b/ad6a354865d45ee3fa533f9638088ef1e42d8216edb5c09543f2750e106d0b/OIP.oPqTM0j-aAO7lOEwdI2IMAHaER.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.oPqTM0j-aAO7lOEwdI2IMAHaER%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0", favori: false },
 ]
 
 let recettesSauvegardees = JSON.parse(localStorage.getItem("recettes")) || recettesParDefaut
+let carteEnEdition = null
+let photoURL = null
 
+// --- Sauvegarde ---
 function sauvegarderRecettes() {
     localStorage.setItem("recettes", JSON.stringify(recettesSauvegardees))
 }
 
+// --- Filtres ---
+function desactiverFiltres() {
+    document.querySelectorAll(".boutons button").forEach(function(f) {
+        f.classList.remove("filtre-actif")
+    })
+}
+
+function mettreAJourFiltres() {
+    document.querySelectorAll(".boutons .filtre-dynamique").forEach(function(b) { b.remove() })
+
+    const tags = {}
+    recettesSauvegardees.forEach(function(data) {
+        const div = document.createElement("div")
+        div.innerHTML = data.tags
+        div.querySelectorAll("span").forEach(function(span) {
+            const texte = span.textContent.trim()
+            if (texte) tags[texte] = (tags[texte] || 0) + 1
+        })
+    })
+
+    Object.keys(tags).forEach(function(tag) {
+        const btn = document.createElement("button")
+        btn.classList.add("filtre-dynamique")
+        btn.innerHTML = `${tag} <span class="badge">${tags[tag]}</span>`
+        btn.addEventListener("click", function() {
+            desactiverFiltres()
+            btn.classList.add("filtre-actif")
+            document.querySelectorAll(".recette").forEach(function(recette) {
+                const carte = recettesSauvegardees.find(function(r) { return String(r.id) === String(recette.dataset.id) })
+                recette.style.display = (carte && carte.tags && carte.tags.includes(tag)) ? "block" : "none"
+            })
+        })
+        boutons.appendChild(btn)
+    })
+}
+
+function mettreAJourBadges() {
+    document.querySelector("#btn-Tous .badge").textContent = document.querySelectorAll(".recette").length
+    document.querySelector("#btn-favoris .badge").textContent = document.querySelectorAll(".coeur button.actif").length
+    mettreAJourFiltres()
+}
+
+// --- Créer une carte ---
 function creerCarteRecette(data) {
     if (!data.id) data.id = Date.now() + Math.random()
     const photoHTML = data.photo
@@ -39,6 +93,7 @@ function creerCarteRecette(data) {
         this.classList.toggle("actif")
         data.favori = this.classList.contains("actif")
         sauvegarderRecettes()
+        mettreAJourBadges()
     })
 
     carte.addEventListener("click", function() {
@@ -50,32 +105,54 @@ function creerCarteRecette(data) {
     return carte
 }
 
+// --- Chargement initial ---
 recettesSauvegardees.forEach(function(data) {
     creerCarteRecette(data)
 })
+mettreAJourBadges()
 
+// --- Recherche ---
 function filtrerRecettes() {
     const texte = input.value.toLowerCase()
-    const recettes = document.querySelectorAll(".recette")
-
-    recettes.forEach(function(recette) {
+    document.querySelectorAll(".recette").forEach(function(recette) {
         const nom = recette.querySelector("h2").textContent.toLowerCase()
-        if (nom.includes(texte)) {
-            recette.style.display = "block"
-        } else {
-            recette.style.display = "none"
-        }
+        recette.style.display = nom.includes(texte) ? "block" : "none"
     })
 }
 
-input.addEventListener("input", filtrerRecettes)
 
+input.addEventListener("input", filtrerRecettes)
 input.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-        filtrerRecettes()
-    }
+    if (e.key === "Enter") filtrerRecettes()
 })
 
+// --- Filtres Tous et Favoris ---
+btnTous.addEventListener("click", function() {
+    desactiverFiltres()
+    btnTous.classList.add("filtre-actif")
+    document.querySelectorAll(".recette").forEach(function(r) { r.style.display = "block" })
+})
+
+btnFavoris.addEventListener("click", function() {
+    desactiverFiltres()
+    btnFavoris.classList.add("filtre-actif")
+    document.querySelectorAll(".recette").forEach(function(recette) {
+        const coeur = recette.querySelector(".coeur button")
+        recette.style.display = coeur.classList.contains("actif") ? "block" : "none"
+    })
+})
+
+// --- Difficulté du formulaire ---
+document.querySelectorAll(".difficulté button").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+        document.querySelectorAll(".difficulté button").forEach(function(b) {
+            b.classList.remove("difficulte-active")
+        })
+        btn.classList.add("difficulte-active")
+    })
+})
+
+// --- Étoiles du formulaire ---
 const etoilesForm = document.querySelectorAll(".étoile")
 
 etoilesForm.forEach(function(etoile, index) {
@@ -95,25 +172,42 @@ etoilesForm.forEach(function(etoile, index) {
     })
 })
 
-const btnCategories = document.querySelectorAll(".categories button")
-
-btnCategories.forEach(function(btn) {
+// --- Catégories du formulaire ---
+document.querySelectorAll(".categories button").forEach(function(btn) {
     btn.addEventListener("click", function() {
         btn.classList.toggle("categorie-active")
     })
 })
 
-const coeurs = document.querySelectorAll(".coeur button")
-
-coeurs.forEach(function(coeur) {
-    coeur.addEventListener("click", function(e) {
-        e.stopPropagation()
-        coeur.classList.toggle("actif")
-    })
+// --- Ouvrir/fermer formulaire ---
+document.querySelector(".btn-ajouter").addEventListener("click", function() {
+    carteEnEdition = null
+    document.querySelector(".btn-supprimer-recette").style.display = "none"
+    overlay.style.display = "flex"
 })
 
-let carteEnEdition = null
+document.querySelector(".btn-fermer").addEventListener("click", function() {
+    overlay.style.display = "none"
+})
 
+document.querySelector(".btn-Annuler").addEventListener("click", function() {
+    overlay.style.display = "none"
+})
+
+// --- Photo ---
+zonePhoto.addEventListener("click", function() {
+    document.querySelector("#input-photo").click()
+})
+
+inputPhoto.addEventListener("change", function() {
+    const fichier = inputPhoto.files[0]
+    if (fichier) {
+        photoURL = URL.createObjectURL(fichier)
+        zonePhoto.innerHTML = `<img src="${photoURL}" style="width:100%;height:150px;object-fit:cover;border-radius:10px;">`
+    }
+})
+
+// --- Ouvrir en édition ---
 function ouvrirEdition(carte) {
     carteEnEdition = carte
     const id = carte.dataset.id
@@ -123,16 +217,11 @@ function ouvrirEdition(carte) {
     document.querySelector(".formulaire input[type='text']").value = data.titre
 
     const tempsInputs = document.querySelectorAll(".temps input")
-    if (data.temps) {
-        const minutes = parseInt(data.temps)
-        tempsInputs[0].value = minutes || ""
-    }
+    if (data.temps) tempsInputs[0].value = parseInt(data.temps) || ""
 
     document.querySelectorAll(".categories button").forEach(function(btn) {
         btn.classList.remove("categorie-active")
-        if (data.tags && data.tags.includes(btn.textContent)) {
-            btn.classList.add("categorie-active")
-        }
+        if (data.tags && data.tags.includes(btn.textContent)) btn.classList.add("categorie-active")
     })
 
     const etoilesCount = (data.etoiles.match(/★/g) || []).length
@@ -146,153 +235,31 @@ function ouvrirEdition(carte) {
         zonePhoto.innerHTML = `<img src="${data.photo}" style="width:100%;height:150px;object-fit:cover;border-radius:10px;">`
     }
 
+    document.querySelector(".btn-supprimer-recette").style.display = "block"
     overlay.style.display = "flex"
 }
 
-document.querySelectorAll(".recette").forEach(function(carte) {
-    carte.addEventListener("click", function() {
-        ouvrirEdition(carte)
-    })
-})
 
-const btnFavoris = document.querySelector("#btn-favoris")
-
-btnFavoris.addEventListener("click", function() {
-    filtres.forEach(function(f) { f.classList.remove("filtre-actif") })
-    btnFavoris.classList.add("filtre-actif")
-
-    const recettes = document.querySelectorAll(".recette")
-    recettes.forEach(function(recette) {
-        const coeur = recette.querySelector(".coeur button")
-        if (coeur.classList.contains("actif")) {
-            recette.style.display = "block"
-        } else {
-            recette.style.display = "none"
-        }
-    })
-})
-
-const btnItalien = document.querySelector("#btn-italien")
-
-const filtres = document.querySelectorAll(".boutons button")
-
-btnItalien.addEventListener("click", function() {
-    filtres.forEach(function(f) { f.classList.remove("filtre-actif") })
-    btnItalien.classList.add("filtre-actif")
-
-    const recettes = document.querySelectorAll(".recette")
-    recettes.forEach(function(recette) {
-        if (recette.dataset.categorie === "italien") {
-            recette.style.display = "block"
-        } else {
-            recette.style.display = "none"
-        }
-    })
-})
-
-const btnTous = document.querySelector("#btn-Tous")
-
-btnTous.addEventListener("click", function() {
-    filtres.forEach(function(f) { f.classList.remove("filtre-actif") })
-    btnTous.classList.add("filtre-actif")
-
-    const recettes = document.querySelectorAll(".recette")
-    recettes.forEach(function(recette) {
-        recette.style.display = "block"
-    })
-})
-
-const overlay = document.querySelector(".overlay")
-const btnAjouter = document.querySelector(".btn-ajouter")
-
-btnAjouter.addEventListener("click", function() {
-    overlay.style.display = "flex"
-})
-
-const btnSupprimerIngredient = document.querySelector("#btn-supprimer-ingredient")
-
-btnSupprimerIngredient.addEventListener("click", function() {
-    document.querySelector("#input-qte").value = ""
-    document.querySelector("#input-unite").value = ""
-    document.querySelector("#input-ingredient").value = ""
-})
-
-const btnAjouterIngredient = document.querySelector(".btn-ajouter-ingredient")
-
-btnAjouterIngredient.addEventListener("click", function() {
-    const nouvelleLigne = document.createElement("div")
-    nouvelleLigne.classList.add("ligne-ingredient")
-    nouvelleLigne.innerHTML = `
-        <input type="text" placeholder="Qté">
-        <input type="text" placeholder="Unité">
-        <input type="text" placeholder="Ingrédient">
-        <button class="btn-supprimer-ligne">×</button>
-    `
-    btnAjouterIngredient.before(nouvelleLigne)
-
-    nouvelleLigne.querySelector(".btn-supprimer-ligne").addEventListener("click", function() {
-        nouvelleLigne.remove()
-    })
-})
-
-const btnAjouterEtape = document.querySelector(".btn-ajouter-etape")
-
-btnAjouterEtape.addEventListener("click", function() {
-    const etapes = document.querySelectorAll(".ligne-etape")
-    const numero = etapes.length + 1
-
-    const nouvelleEtape = document.createElement("div")
-    nouvelleEtape.classList.add("ligne-etape")
-    nouvelleEtape.innerHTML = `
-        <span class="numero-etape">${numero}</span>
-        <textarea placeholder="Décrivez cette étape..."></textarea>
-        <button class="btn-supprimer-etape">×</button>
-    `
-    btnAjouterEtape.before(nouvelleEtape)
-
-    nouvelleEtape.querySelector(".btn-supprimer-etape").addEventListener("click", function() {
-        nouvelleEtape.remove()
-        document.querySelectorAll(".ligne-etape").forEach(function(etape, index) {
-            etape.querySelector(".numero-etape").textContent = index + 1
-        })
-    })
-})
-
-const btnFermer = document.querySelector(".btn-fermer")
-btnFermer.addEventListener("click", function() {
+document.querySelector(".btn-supprimer-recette").addEventListener("click", function() {
+    if (!carteEnEdition) return
+    const id = carteEnEdition.dataset.id
+    recettesSauvegardees = recettesSauvegardees.filter(function(r) { return String(r.id) !== String(id) })
+    sauvegarderRecettes()
+    carteEnEdition.remove()
+    carteEnEdition = null
+    resetFormulaire()
+    mettreAJourBadges()
     overlay.style.display = "none"
 })
 
-const btnAnnuler = document.querySelector(".btn-Annuler")
-btnAnnuler.addEventListener("click", function() {
-    overlay.style.display = "none"
-})
-
-let photoURL = null
-
-const zonePhoto = document.querySelector("#zone-photo")
-const inputPhoto = document.querySelector("#input-photo")
-
-zonePhoto.addEventListener("click", function() {
-    inputPhoto.click()
-})
-
-inputPhoto.addEventListener("change", function() {
-    const fichier = inputPhoto.files[0]
-    if (fichier) {
-        photoURL = URL.createObjectURL(fichier)
-        zonePhoto.innerHTML = `<img src="${photoURL}" style="width:100%;height:150px;object-fit:cover;border-radius:10px;">`
-    }
-})
-
+// --- Reset formulaire ---
 function resetFormulaire() {
     document.querySelector(".formulaire input[type='text']").value = ""
     document.querySelectorAll(".temps input").forEach(function(i) { i.value = "" })
     document.querySelector(".note textarea").value = ""
     document.querySelectorAll(".categories button").forEach(function(b) { b.classList.remove("categorie-active") })
     document.querySelectorAll(".étoile").forEach(function(e) { e.classList.remove("actif", "demi") })
-    const lignes = document.querySelectorAll(".ligne-ingredient")
-    lignes.forEach(function(l, i) { if (i > 0) l.remove() })
+    document.querySelectorAll(".ligne-ingredient").forEach(function(l, i) { if (i > 0) l.remove() })
     document.querySelector("#input-qte").value = ""
     document.querySelector("#input-unite").value = ""
     document.querySelector("#input-ingredient").value = ""
@@ -309,8 +276,49 @@ function resetFormulaire() {
     })
 }
 
-const btnAjouterRecette = document.querySelector(".btn-Ajouter-recette")
-btnAjouterRecette.addEventListener("click", function() {
+// --- Ingrédients dynamiques ---
+document.querySelector("#btn-supprimer-ingredient").addEventListener("click", function() {
+    document.querySelector("#input-qte").value = ""
+    document.querySelector("#input-unite").value = ""
+    document.querySelector("#input-ingredient").value = ""
+})
+
+document.querySelector(".btn-ajouter-ingredient").addEventListener("click", function() {
+    const nouvelleLigne = document.createElement("div")
+    nouvelleLigne.classList.add("ligne-ingredient")
+    nouvelleLigne.innerHTML = `
+        <input type="text" placeholder="Qté">
+        <input type="text" placeholder="Unité">
+        <input type="text" placeholder="Ingrédient">
+        <button class="btn-supprimer-ligne">×</button>
+    `
+    document.querySelector(".btn-ajouter-ingredient").before(nouvelleLigne)
+    nouvelleLigne.querySelector(".btn-supprimer-ligne").addEventListener("click", function() {
+        nouvelleLigne.remove()
+    })
+})
+
+// --- Étapes dynamiques ---
+document.querySelector(".btn-ajouter-etape").addEventListener("click", function() {
+    const numero = document.querySelectorAll(".ligne-etape").length + 1
+    const nouvelleEtape = document.createElement("div")
+    nouvelleEtape.classList.add("ligne-etape")
+    nouvelleEtape.innerHTML = `
+        <span class="numero-etape">${numero}</span>
+        <textarea placeholder="Décrivez cette étape..."></textarea>
+        <button class="btn-supprimer-etape">×</button>
+    `
+    document.querySelector(".btn-ajouter-etape").before(nouvelleEtape)
+    nouvelleEtape.querySelector(".btn-supprimer-etape").addEventListener("click", function() {
+        nouvelleEtape.remove()
+        document.querySelectorAll(".ligne-etape").forEach(function(etape, index) {
+            etape.querySelector(".numero-etape").textContent = index + 1
+        })
+    })
+})
+
+// --- Ajouter / modifier une recette ---
+document.querySelector(".btn-Ajouter-recette").addEventListener("click", function() {
     const titre = document.querySelector(".formulaire input[type='text']").value
     if (!titre) return
 
@@ -319,9 +327,8 @@ btnAjouterRecette.addEventListener("click", function() {
     const cuisson = tempsInputs[1].value
     const tempsTotal = prepa && cuisson ? parseInt(prepa) + parseInt(cuisson) + "min" : prepa ? prepa + "min" : cuisson ? cuisson + "min" : ""
 
-    const categoriesActives = document.querySelectorAll(".categories button.categorie-active")
     let tagsHTML = ""
-    categoriesActives.forEach(function(btn) {
+    document.querySelectorAll(".categories button.categorie-active").forEach(function(btn) {
         tagsHTML += `<span class="tag-italien">${btn.textContent}</span>`
     })
 
@@ -334,19 +341,11 @@ btnAjouterRecette.addEventListener("click", function() {
         else etoilesHTML += "☆"
     }
 
-    const data = {
-        titre: titre,
-        temps: tempsTotal,
-        etoiles: etoilesHTML,
-        tags: tagsHTML,
-        photo: photoURL,
-        favori: false
-    }
+    const data = { titre, temps: tempsTotal, etoiles: etoilesHTML, tags: tagsHTML, photo: photoURL, favori: false }
 
     if (carteEnEdition) {
-        const id = carteEnEdition.dataset.id
-        data.id = id
-        const index = recettesSauvegardees.findIndex(function(r) { return String(r.id) === String(id) })
+        data.id = carteEnEdition.dataset.id
+        const index = recettesSauvegardees.findIndex(function(r) { return String(r.id) === String(data.id) })
         if (index !== -1) recettesSauvegardees[index] = data
         carteEnEdition.querySelector("h2").textContent = titre
         if (tagsHTML) carteEnEdition.querySelector(".tags").innerHTML = tagsHTML
@@ -356,29 +355,13 @@ btnAjouterRecette.addEventListener("click", function() {
             if (oldPhoto) oldPhoto.outerHTML = `<img src="${photoURL}" alt="${titre}">`
         }
         carteEnEdition = null
-        sauvegarderRecettes()
     } else {
         recettesSauvegardees.push(data)
-        sauvegarderRecettes()
         creerCarteRecette(data)
     }
 
+    sauvegarderRecettes()
     resetFormulaire()
+    mettreAJourBadges()
     overlay.style.display = "none"
-})
-
-const btnfacile = document.querySelector("#btn-facile")
-
-btnfacile.addEventListener("click", function() {
-    filtres.forEach(function(f) { f.classList.remove("filtre-actif") })
-    btnfacile.classList.add("filtre-actif")
-
-    const recettes = document.querySelectorAll(".recette")
-    recettes.forEach(function(recette) {
-        if (recette.dataset.difficulte === "facile") {
-            recette.style.display = "block"
-        } else {
-            recette.style.display = "none"
-        }
-    })
 })

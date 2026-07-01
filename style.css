@@ -93,6 +93,17 @@
 .boutons-formulaire {
     display: flex;
     justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-supprimer-recette {
+    background: none;
+    border: 1.5px solid #e0b0a0;
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: #c2674b;
+    cursor: pointer;
+    margin-right: auto;
 }
 
 @media (max-width: 600px) {
@@ -179,6 +190,23 @@
     letter-spacing: 2px;
 }
 
+.difficulté button {
+    border-radius: 100px;
+    border: 2px solid #e5d9c9;
+    background-color: #fffdf9;
+    padding: 10px;;
+}
+.difficulté {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.difficulté button.difficulte-active {
+    background-color: #c2674b;
+    color: white;
+    border-color: #c2674b;
+}
 .categories button{
     border-radius: 100px;
     border: 2px solid #e5d9c9;

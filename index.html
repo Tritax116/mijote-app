@@ -22,46 +22,13 @@
     </nav>
     <div class="contenu">
     <div class="boutons">
-<button id="btn-favoris">♡ Favoris <span class="badge">0</span></button>
-        <button id="btn-Tous">Tous <span class="badge">3</span></button>
-        <button id="btn-italien">Italien <span class="badge">2</span></button>
-        <button id="btn-facile">facile <span class="badge">1</span></button>
-        <button id="btn-français">français <span class="badge"></span></button>
-        <button id="btn-asiatique">asiatique <span class="badge"></span></button>
-
-
+        <button id="btn-favoris">♡ Favoris <span class="badge">0</span></button>
+        <button id="btn-Tous">Tous <span class="badge">0</span></button>
     </div>
     </div>
     <div class="contenu">
     <h2 class="titre-section">Mes recettes</h2>
     <div class="recettes">
-        <div class="recette" data-categorie="italien">
-            <div class="coeur"><button>♡</button></div>
-            <img src="https://s1.qwant.com/thumbr/474x355/8/6/4dcbc871b87f0214f82764da753a23f4588f37da0e33d8e86aee239e05139e/OIP.hYbhTMTE7ZEIsp1dU75oSAHaFj.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.hYbhTMTE7ZEIsp1dU75oSAHaFj%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0" alt="Pates Bolognaises">
-            <h2>Pates Bolognaises</h2>
-            <div class="recette-info">
-                <p>⏱ 1h30 · <span class="etoiles">★★★★☆</span></p>
-            </div>
-            <div class="tags"><span class="tag-italien">Italien</span></div>
-        </div>
-        <div class="recette" data-difficulte="facile">
-            <div class="coeur"><button>♡</button></div>
-            <img src="https://s1.qwant.com/thumbr/474x315/0/1/6fd6706f769f4982aa894949b1c8587342cc229ad9caaa968cac86a69f63ec/OIP.57RNdeTqS5h3CVnP85T3VwHaE7.jpg?u=https%3A%2F%2Ftse.mm.bing.net%2Fth%2Fid%2FOIP.57RNdeTqS5h3CVnP85T3VwHaE7%3Fpid%3DApi&q=0&b=1&p=0&a=0" alt="Tartiflette">
-            <h2>Tartiflette</h2>
-            <div class="recette-info">
-                <p>⏱ 1h15 · <span class="etoiles">★★★☆☆</span></p>
-            </div>
-            <div class="tags"><span class="tag-facile">Facile</span></div>
-        </div>
-        <div class="recette" data-categorie="italien">
-            <div class="coeur"><button>♡</button></div>
-            <img src="https://s1.qwant.com/thumbr/474x273/2/b/ad6a354865d45ee3fa533f9638088ef1e42d8216edb5c09543f2750e106d0b/OIP.oPqTM0j-aAO7lOEwdI2IMAHaER.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.oPqTM0j-aAO7lOEwdI2IMAHaER%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0" alt="Pates Carbonnara">
-            <h2>Pates Carbonnara</h2>
-            <div class="recette-info">
-                <p>⏱ 12min · <span class="etoiles">★★★★★</span></p>
-            </div>
-            <div class="tags"><span class="tag-italien">Italien</span></div>
-        </div>
     </div>
     </div>
     <div class="overlay">
@@ -69,10 +36,11 @@
             <h2>Nouvelle recette</h2>
             <button class="btn-fermer">×</button>
             <p class="label">PHOTO DU PLAT</p>
-            <div class="zone-photo">
+            <div class="zone-photo" id="zone-photo">
                 <span>🖼️</span>
                 <p>Cliquez pour ajouter une photo</p>
                 <p class="sous-label">JPG ou PNG</p>
+                <input type="file" accept="image/*" id="input-photo" style="display:none">
             </div>
             <p class="label">TITRE DE LA RECETTE</p>
             <input type="text" placeholder="Ex : Risotto crémeux aux champignons">
@@ -88,6 +56,12 @@
                 <button>Healthy</button>
                 <button>Épicé</button>
             </div>
+<p class="label">DIFFICULTÉ</p>
+<div class="difficulté">
+    <button>Facile</button>
+    <button>Moyen</button>
+    <button>Difficile</button>
+</div>
             <div class="temps">
     <div>
         <p class="label">PRÉPA (MIN)</p>
@@ -128,6 +102,7 @@
     <span class="étoile">★</span>
     <span class="étoile">★</span>
         <div class="boutons-formulaire">
+            <button class="btn-supprimer-recette" style="display:none">🗑 Supprimer</button>
             <button class="btn-Annuler">Annuler</button>
             <button class="btn-Ajouter-recette">Ajouter la recette</button>
         </div>
