@@ -1,6 +1,11 @@
-﻿if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./service-worker.js")
 }
+
+// --- Supabase ---
+const SUPABASE_URL = "https://bqavrjgcemfxduzwfzqo.supabase.co"
+const SUPABASE_KEY = "sb_publishable_UQtTGdP2NXrY5J0uvvcXPg_1VVYqEaz"
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 // --- Éléments du DOM ---
 const input = document.querySelector("input")
@@ -12,19 +17,52 @@ const zonePhoto = document.querySelector("#zone-photo")
 const inputPhoto = document.querySelector("#input-photo")
 
 // --- Données ---
-const recettesParDefaut = [
-    { id: 1, titre: "Pâtes Bolognaises", temps: "1h30", etoiles: "★★★★☆", tags: '<span class="tag-italien">Italien</span>', photo: "https://s1.qwant.com/thumbr/474x355/8/6/4dcbc871b87f0214f82764da753a23f4588f37da0e33d8e86aee239e05139e/OIP.hYbhTMTE7ZEIsp1dU75oSAHaFj.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.hYbhTMTE7ZEIsp1dU75oSAHaFj%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0", favori: false },
-    { id: 2, titre: "Tartiflette", temps: "1h15", etoiles: "★★★☆☆", tags: '<span class="tag-facile">Facile</span>', photo: "https://s1.qwant.com/thumbr/474x315/0/1/6fd6706f769f4982aa894949b1c8587342cc229ad9caaa968cac86a69f63ec/OIP.57RNdeTqS5h3CVnP85T3VwHaE7.jpg?u=https%3A%2F%2Ftse.mm.bing.net%2Fth%2Fid%2FOIP.57RNdeTqS5h3CVnP85T3VwHaE7%3Fpid%3DApi&q=0&b=1&p=0&a=0", favori: false },
-    { id: 3, titre: "Pâtes Carbonara", temps: "12min", etoiles: "★★★★★", tags: '<span class="tag-italien">Italien</span>', photo: "https://s1.qwant.com/thumbr/474x273/2/b/ad6a354865d45ee3fa533f9638088ef1e42d8216edb5c09543f2750e106d0b/OIP.oPqTM0j-aAO7lOEwdI2IMAHaER.jpg?u=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.oPqTM0j-aAO7lOEwdI2IMAHaER%3Fcb%3Dthfc1falcon3%26pid%3DApi&q=0&b=1&p=0&a=0", favori: false },
-]
-
-let recettesSauvegardees = JSON.parse(localStorage.getItem("recettes")) || recettesParDefaut
+let recettesSauvegardees = []
 let carteEnEdition = null
-let photoURL = null
+let photoURL = null       // URL utilisée pour la prévisualisation (blob temporaire ou URL déjà en ligne)
+let photoFichier = null   // Fichier en attente d'upload vers Supabase Storage
 
-// --- Sauvegarde ---
-function sauvegarderRecettes() {
-    localStorage.setItem("recettes", JSON.stringify(recettesSauvegardees))
+// --- Chargement depuis Supabase ---
+async function chargerRecettes() {
+    const { data, error } = await supabase
+        .from("recettes")
+        .select("*")
+        .order("created_at", { ascending: true })
+
+    if (error) {
+        console.error("Erreur de chargement des recettes :", error)
+        return
+    }
+
+    recettesSauvegardees = data.map(function(r) {
+        return {
+            id: r.id,
+            titre: r.titre,
+            temps: r.temps,
+            etoiles: r.etoiles,
+            tags: r.tags,
+            photo: r.photo_url,
+            favori: r.favori
+        }
+    })
+
+    document.querySelector(".recettes").innerHTML = ""
+    recettesSauvegardees.forEach(function(data) {
+        creerCarteRecette(data)
+    })
+    mettreAJourBadges()
+}
+
+// --- Upload d'une photo vers Supabase Storage ---
+async function uploaderPhoto(fichier) {
+    const nomFichier = `${Date.now()}-${fichier.name}`
+    const { error } = await supabase.storage.from("photos").upload(nomFichier, fichier)
+    if (error) {
+        console.error("Erreur upload photo :", error)
+        return null
+    }
+    const { data } = supabase.storage.from("photos").getPublicUrl(nomFichier)
+    return data.publicUrl
 }
 
 // --- Filtres ---
@@ -73,7 +111,6 @@ function mettreAJourBadges() {
 
 // --- Créer une carte ---
 function creerCarteRecette(data) {
-    if (!data.id) data.id = Date.now() + Math.random()
     const photoHTML = data.photo
         ? `<img src="${data.photo}" alt="${data.titre}">`
         : `<div class="photo-placeholder"><span class="initiale">${data.titre[0].toUpperCase()}</span></div>`
@@ -90,12 +127,17 @@ function creerCarteRecette(data) {
         <div class="tags">${data.tags}</div>
     `
 
-    carte.querySelector(".coeur button").addEventListener("click", function(e) {
+    carte.querySelector(".coeur button").addEventListener("click", async function(e) {
         e.stopPropagation()
         this.classList.toggle("actif")
         data.favori = this.classList.contains("actif")
-        sauvegarderRecettes()
         mettreAJourBadges()
+
+        const { error } = await supabase
+            .from("recettes")
+            .update({ favori: data.favori })
+            .eq("id", data.id)
+        if (error) console.error("Erreur mise à jour favori :", error)
     })
 
     carte.addEventListener("click", function() {
@@ -108,10 +150,7 @@ function creerCarteRecette(data) {
 }
 
 // --- Chargement initial ---
-recettesSauvegardees.forEach(function(data) {
-    creerCarteRecette(data)
-})
-mettreAJourBadges()
+chargerRecettes()
 
 // --- Recherche ---
 function filtrerRecettes() {
@@ -219,16 +258,19 @@ document.querySelector(".btn-Annuler").addEventListener("click", function() {
 })
 
 // --- Photo ---
+function gererSelectionPhoto(fichier) {
+    if (!fichier) return
+    photoFichier = fichier
+    photoURL = URL.createObjectURL(fichier) // uniquement pour la prévisualisation immédiate
+    zonePhoto.innerHTML = `<img src="${photoURL}" style="width:100%;height:150px;object-fit:cover;border-radius:10px;">`
+}
+
 zonePhoto.addEventListener("click", function() {
     document.querySelector("#input-photo").click()
 })
 
 inputPhoto.addEventListener("change", function() {
-    const fichier = inputPhoto.files[0]
-    if (fichier) {
-        photoURL = URL.createObjectURL(fichier)
-        zonePhoto.innerHTML = `<img src="${photoURL}" style="width:100%;height:150px;object-fit:cover;border-radius:10px;">`
-    }
+    gererSelectionPhoto(inputPhoto.files[0])
 })
 
 // --- Ouvrir en édition ---
@@ -259,9 +301,12 @@ function ouvrirEdition(carte) {
         if (i < etoilesCount) e.classList.add("actif")
     })
 
+    photoFichier = null // pas de nouveau fichier tant que l'utilisateur n'en choisit pas un
     if (data.photo) {
         photoURL = data.photo
         zonePhoto.innerHTML = `<img src="${data.photo}" style="width:100%;height:150px;object-fit:cover;border-radius:10px;">`
+    } else {
+        photoURL = null
     }
 
     document.querySelector(".btn-supprimer-recette").style.display = "block"
@@ -270,11 +315,17 @@ function ouvrirEdition(carte) {
 }
 
 
-document.querySelector(".btn-supprimer-recette").addEventListener("click", function() {
+document.querySelector(".btn-supprimer-recette").addEventListener("click", async function() {
     if (!carteEnEdition) return
     const id = carteEnEdition.dataset.id
+
+    const { error } = await supabase.from("recettes").delete().eq("id", id)
+    if (error) {
+        console.error("Erreur suppression :", error)
+        return
+    }
+
     recettesSauvegardees = recettesSauvegardees.filter(function(r) { return String(r.id) !== String(id) })
-    sauvegarderRecettes()
     carteEnEdition.remove()
     carteEnEdition = null
     resetFormulaire()
@@ -297,13 +348,10 @@ function resetFormulaire() {
     document.querySelectorAll(".ligne-etape").forEach(function(e, i) { if (i > 0) e.remove() })
     document.querySelector(".ligne-etape textarea").value = ""
     photoURL = null
+    photoFichier = null
     zonePhoto.innerHTML = `<span>🖼️</span><p>Cliquez pour ajouter une photo</p><p class="sous-label">JPG ou PNG</p><input type="file" accept="image/*" id="input-photo" style="display:none">`
     document.querySelector("#input-photo").addEventListener("change", function() {
-        const fichier = this.files[0]
-        if (fichier) {
-            photoURL = URL.createObjectURL(fichier)
-            zonePhoto.innerHTML = `<img src="${photoURL}" style="width:100%;height:150px;object-fit:cover;border-radius:10px;">`
-        }
+        gererSelectionPhoto(this.files[0])
     })
 }
 
@@ -349,7 +397,7 @@ document.querySelector(".btn-ajouter-etape").addEventListener("click", function(
 })
 
 // --- Ajouter / modifier une recette ---
-document.querySelector(".btn-Ajouter-recette").addEventListener("click", function() {
+document.querySelector(".btn-Ajouter-recette").addEventListener("click", async function() {
     const titre = inputTitre.value
     if (!titre) return
 
@@ -377,26 +425,88 @@ document.querySelector(".btn-Ajouter-recette").addEventListener("click", functio
         else etoilesHTML += "☆"
     }
 
-    const data = { titre, temps: tempsTotal, etoiles: etoilesHTML, tags: tagsHTML, photo: photoURL, favori: false }
+    // Upload de la photo si un nouveau fichier a été choisi
+    let photoUrlFinale = (carteEnEdition && !photoFichier) ? photoURL : null
+    if (photoFichier) {
+        btnAjouter.textContent = "Envoi de la photo..."
+        btnAjouter.disabled = true
+        const urlUploadee = await uploaderPhoto(photoFichier)
+        btnAjouter.disabled = false
+        btnAjouter.textContent = carteEnEdition ? "Enregistrer" : "Ajouter la recette"
+        if (urlUploadee) photoUrlFinale = urlUploadee
+    }
 
     if (carteEnEdition) {
-        data.id = carteEnEdition.dataset.id
-        const index = recettesSauvegardees.findIndex(function(r) { return String(r.id) === String(data.id) })
-        if (index !== -1) recettesSauvegardees[index] = data
+        const id = carteEnEdition.dataset.id
+        const { error } = await supabase
+            .from("recettes")
+            .update({
+                titre,
+                temps: tempsTotal,
+                etoiles: etoilesHTML,
+                tags: tagsHTML,
+                photo_url: photoUrlFinale
+            })
+            .eq("id", id)
+
+        if (error) {
+            console.error("Erreur modification recette :", error)
+            return
+        }
+
+        const index = recettesSauvegardees.findIndex(function(r) { return String(r.id) === String(id) })
+        if (index !== -1) {
+            recettesSauvegardees[index] = {
+                id,
+                titre,
+                temps: tempsTotal,
+                etoiles: etoilesHTML,
+                tags: tagsHTML,
+                photo: photoUrlFinale,
+                favori: recettesSauvegardees[index].favori
+            }
+        }
+
         carteEnEdition.querySelector("h2").textContent = titre
         if (tagsHTML) carteEnEdition.querySelector(".tags").innerHTML = tagsHTML
         carteEnEdition.querySelector(".recette-info p").innerHTML = (tempsTotal ? "⏱ " + tempsTotal + " · " : "") + "<span class='etoiles'>" + etoilesHTML + "</span>"
-        if (photoURL) {
+        if (photoUrlFinale) {
             const oldPhoto = carteEnEdition.querySelector("img") || carteEnEdition.querySelector(".photo-placeholder")
-            if (oldPhoto) oldPhoto.outerHTML = `<img src="${photoURL}" alt="${titre}">`
+            if (oldPhoto) oldPhoto.outerHTML = `<img src="${photoUrlFinale}" alt="${titre}">`
         }
         carteEnEdition = null
     } else {
-        recettesSauvegardees.push(data)
-        creerCarteRecette(data)
+        const { data, error } = await supabase
+            .from("recettes")
+            .insert({
+                titre,
+                temps: tempsTotal,
+                etoiles: etoilesHTML,
+                tags: tagsHTML,
+                photo_url: photoUrlFinale,
+                favori: false
+            })
+            .select()
+            .single()
+
+        if (error) {
+            console.error("Erreur ajout recette :", error)
+            return
+        }
+
+        const nouvelleRecette = {
+            id: data.id,
+            titre,
+            temps: tempsTotal,
+            etoiles: etoilesHTML,
+            tags: tagsHTML,
+            photo: photoUrlFinale,
+            favori: false
+        }
+        recettesSauvegardees.push(nouvelleRecette)
+        creerCarteRecette(nouvelleRecette)
     }
 
-    sauvegarderRecettes()
     resetFormulaire()
     mettreAJourBadges()
     overlay.style.display = "none"
