@@ -133,7 +133,7 @@ function creerCarteRecette(data) {
         data.favori = this.classList.contains("actif")
         mettreAJourBadges()
 
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from("recettes")
             .update({ favori: data.favori })
             .eq("id", data.id)
@@ -438,7 +438,7 @@ document.querySelector(".btn-Ajouter-recette").addEventListener("click", async f
 
     if (carteEnEdition) {
         const id = carteEnEdition.dataset.id
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from("recettes")
             .update({
                 titre,
@@ -476,7 +476,7 @@ document.querySelector(".btn-Ajouter-recette").addEventListener("click", async f
         }
         carteEnEdition = null
     } else {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from("recettes")
             .insert({
                 titre,
@@ -508,6 +508,4 @@ document.querySelector(".btn-Ajouter-recette").addEventListener("click", async f
     }
 
     resetFormulaire()
-    mettreAJourBadges()
-    overlay.style.display = "none"
-})
+    mettreAJou
