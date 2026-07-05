@@ -5,7 +5,7 @@ if ("serviceWorker" in navigator) {
 // --- Supabase ---
 const SUPABASE_URL = "https://bqavrjgcemfxduzwfzqo.supabase.co"
 const SUPABASE_KEY = "sb_publishable_UQtTGdP2NXrY5J0uvvcXPg_1VVYqEaz"
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 // --- Éléments du DOM ---
 const input = document.querySelector("input")
@@ -24,7 +24,7 @@ let photoFichier = null   // Fichier en attente d'upload vers Supabase Storage
 
 // --- Chargement depuis Supabase ---
 async function chargerRecettes() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from("recettes")
         .select("*")
         .order("created_at", { ascending: true })
@@ -56,12 +56,12 @@ async function chargerRecettes() {
 // --- Upload d'une photo vers Supabase Storage ---
 async function uploaderPhoto(fichier) {
     const nomFichier = `${Date.now()}-${fichier.name}`
-    const { error } = await supabase.storage.from("photos").upload(nomFichier, fichier)
+    const { error } = await supabaseClient.storage.from("photos").upload(nomFichier, fichier)
     if (error) {
         console.error("Erreur upload photo :", error)
         return null
     }
-    const { data } = supabase.storage.from("photos").getPublicUrl(nomFichier)
+    const { data } = supabaseClient.storage.from("photos").getPublicUrl(nomFichier)
     return data.publicUrl
 }
 
@@ -319,7 +319,7 @@ document.querySelector(".btn-supprimer-recette").addEventListener("click", async
     if (!carteEnEdition) return
     const id = carteEnEdition.dataset.id
 
-    const { error } = await supabase.from("recettes").delete().eq("id", id)
+    const { error } = await supabaseClient.from("recettes").delete().eq("id", id)
     if (error) {
         console.error("Erreur suppression :", error)
         return
